@@ -1,0 +1,82 @@
+LIBNAME REG 'Class Data'; 
+
+PROC FREQ DATA=reg.videogamesales_main;
+    TABLE Platform*Genre*Rating;
+RUN;
+
+
+PROC PRINT DATA=reg.videogamesales_main;
+RUN;
+
+PROC CONTENTS DATA=reg.videogamesales_main;
+RUN;
+
+DATA sales;
+  SET reg.videogamesales_main;
+     	 
+  *platforms = '';
+  IF (Platform='X360') THEN x360 = 1 ;
+   else x360=0;
+  IF (Platform='PS2') THEN PS2 = 1;
+   else PS2=0;
+  IF (Platform='PSP') THEN PSP = 1;
+  else PSP =0;
+  IF (Platform='PS3') THEN PS3 = 1;
+  else PS3 = 0;
+  if (Platform='DS') THEN DS = 1;
+  else DS = 0 ;
+  if (Platform='GBA') THEN gba = 1;
+  else gba= 0;
+  if (Platform='GC') THEN gc = 1;else gc=0;
+  if (Platform='PC') THEN pc=1;else pc=0;
+  if (Platform='Wii') THEN wii=1;else wii=0; 
+ 
+
+  IF (Genre='Action') THEN action=1;else action =0;
+   IF (Genre='Adventure') THEN adventure=1;else adventure =0;
+  IF (Genre='Fighting') THEN fighting=1;else fighting=0; 
+  IF (Genre='Misc') THEN misc=1;else misc =0;
+  IF (Genre='Platform') THEN platform = 1;else platform=0;
+  IF (Genre='Puzzle') THEN puzzle=1;else puzzle=0;
+  IF (Genre='Racing') THEN racing=1;else racing=0;
+  IF (Genre='Strategy') THEN strategy=1;else strategy=0;
+  IF (Genre='Shooter') THEN shooter=1;else shooter=0;
+  IF (Genre='Simulation') THEN simulation=1;else simulation=0;
+  IF (Genre='Sports') THEN sports=1;else sports=0;
+	
+  IF (rating='E10+') THEN e10=1;else e10=0;
+  IF (rating='E') THEN e=1;else e=0;
+  IF (rating='M') THEN m=1;else m=0;
+ 
+  age = 2013 - Year_of_Release;
+ run;
+   
+ proc reg data = Sales;
+ model Global_sales =  Critic_Score Critic_Count User_Score User_Count x360 PS2 PSP PS3 DS gba gc pc wii action adventure 
+                       fighting misc puzzle racing strategy shooter simulation sports e10 e m age;
+run;
+quit;
+
+DATA sales1;
+  SET work.sales;
+  log_global_sales = log(Global_sales);
+  log_critic_score = log(Critic_Score);
+  log_critic_count = log(Critic_Count);
+  log_user_score = log(User_Score);
+  log_user_count =  log(User_Count);
+ run;
+
+  proc reg data = Sales1;
+ model log_global_sales =  Critic_Score Critic_Count User_Score User_Count x360 PS2 PSP PS3 DS gba gc pc wii action adventure 
+                       fighting misc puzzle racing strategy shooter simulation sports e10 e m age;
+run;
+quit;
+ proc reg data = Sales1;
+ model log_global_sales =  log_critic_score log_critic_count log_user_score log_user_count x360 PS2 PSP PS3 DS gba gc pc wii action adventure 
+                       fighting misc puzzle racing strategy shooter simulation sports e10 e m age;
+run;
+quit;
+
+
+
+
