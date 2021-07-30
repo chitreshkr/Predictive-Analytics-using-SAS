@@ -2,7 +2,6 @@
 data Hotel;
 	infile 'E:\Users\cxk190003\Downloads\Hotel.dat';
 	input roomno 1-4 guest checkin_month checkin_day  checkin_year  checkout_month checkout_day checkout_year internet_use $ days_use roomtype $53-68 rate ;
-	*format fcd yymmdd10. cdf yymmdd10.;
 	label roomno = 'room number'
 		  guest = 'number of guests'
 		  checkin_month = 'check-in month'
@@ -25,23 +24,8 @@ data hotel2;
   check_out_date = catx("/",checkout_month,checkout_day,checkout_year);
   drop checkin_month checkin_day checkin_year checkout_month checkout_day checkout_year;
 run;
+
 data hotel3;
-   set hotel2;
-   checkin_date = input(check_in_date,anydtdte32.);
-   *Date= INPUT(DateString, anydtdte32.);
-   *checkout_date = input(check_out_date,anydtdte32.);
-   drop check_in_date;*check_out_date;
-   format checkin_date mmddyy8. ;*checkout_date mmddyy8.;
-run;
-data hotel4;
-   set hotel3;
-   *checkin_date = input(check_in_date,anydtdte32.);
-   *Date= INPUT(DateString, anydtdte32.);
-   checkout_date = input(check_out_date,anydtdte32.);
-   drop check_out_date;*check_in_date;
-   format checkout_date mmddyy8.;*checkin_date mmddyy8. ;
-run;
-data hotel5;
    set hotel2;
    checkin_date = input(check_in_date,anydtdte32.);
    *Date= INPUT(DateString, anydtdte32.);
@@ -50,8 +34,8 @@ data hotel5;
    format checkout_date mmddyy8. checkin_date mmddyy8. ;
 run;
 
-data hotel8;
-   set hotel5;
+data hotel4;
+   set hotel3;
    if  days_use=1 & guest=1 then
       do;
          subtotal = (rate*(checkout_date - checkin_date)) + 9.95;
@@ -78,16 +62,16 @@ data hotel8;
        end;
 run;
 
-proc print data=hotel6;
-   title 'HOTEL with subtotal';
+proc print data=hotel4;
+   title 'HOTEL  Dataset with subtotal';
 run;
 
-data hotel14;
-   set hotel8;
+data hotel5;
+   set hotel4;
    retain total_value 0;
    total_value =  (subtotal * 0.0775) + subtotal;
    total_value = round(total_value,0.01);
 run;
-proc print data=hotel  ;
-   title 'HOTEL with total';
+proc print data=hotel5 ;
+   title 'HOTEL Dataset with total';
 run;
